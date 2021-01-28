@@ -5,7 +5,7 @@ This is a python package that let's you send mail over command line interface.
 ```bash
 pip install cli-mailer
 ```
-2. Now run the file
+2. Now run the script (from anywhere)
 ```bash
 cli-mailer
 ```
