@@ -1,0 +1,211 @@
+#!/usr/bin/env python
+
+from __future__ import print_function, unicode_literals
+
+import os
+import re as regex
+import re
+import smtplib
+import ssl
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from pprint import pprint
+import time
+
+import click
+from getpass import getpass
+import six
+from pyfiglet import figlet_format
+from PyInquirer import (Token, ValidationError, Validator, print_json, prompt,
+                        style_from_dict)
+
+
+try:
+    import colorama
+    colorama.init()
+except ImportError:
+    colorama = None
+
+try:
+    from termcolor import colored
+except ImportError:
+    colored = None
+
+
+
+
+style = style_from_dict({
+    Token.QuestionMark: '#FC2E02 bold',
+    Token.Selected: '#673AB7 bold',
+    Token.Instruction: '#abe456',  # default
+    Token.Answer: '#42FF00 bold',
+    Token.Question: '#E91E63 bold',
+    Token.Pointer: '#fac731 bold',
+})
+
+
+class EmailValidator(Validator):
+    pattern = r"\"?([-a-zA-Z0-9.`?{}]+@\w+\.\w+)\"?"
+
+    def validate(self, email):
+        if len(email.text):
+            if re.match(self.pattern, email.text):
+                return True
+            else:
+                raise ValidationError(
+                    message="Invalid email",
+                    cursor_position=len(email.text))
+        else:
+            raise ValidationError(
+                message="You can't leave this blank",
+                cursor_position=len(email.text))
+
+class EmptyValidator(Validator):
+    def validate(self, value):
+        if len(value.text):
+            return True
+        else:
+            raise ValidationError(
+                message="You can't leave this blank",
+                cursor_position=len(value.text))
+
+class FilePathValidator(Validator):
+    def validate(self, value):
+        if len(value.text):
+            if os.path.isfile(value.text):
+                return True
+            else:
+                raise ValidationError(
+                    message="File not found",
+                    cursor_position=len(value.text))
+        else:
+            raise ValidationError(
+                message="You can't leave this blank",
+                cursor_position=len(value.text))
+
+def getContentType(answer, conttype):
+    return answer.get("content_type").lower() == conttype.lower()
+
+def log(string, color, font="slant", figlet=False):
+    if colored:
+        if not figlet:
+            six.print_(colored(string, color))
+        else:
+            six.print_(colored(figlet_format(
+                string, font=font), color))
+    else:
+        six.print_(string)
+
+
+
+def sendMail(mailinfo):
+    sender_email =str(mailinfo.get("from_email"))
+    receiver_email =str(mailinfo.get("to_email"))
+    log("\nEnter Password for your email ", "red")
+    password = getpass()
+    log("\nConfirm password ", "red")
+    confirm_password = getpass()
+    if(password!=confirm_password):
+        log("\n \t \t \t Password Doesn't match Please try again", "red")
+        sendMail(mailinfo)
+        return
+    message = MIMEMultipart("alternative")
+    message["Subject"] = str(mailinfo.get("subject"))
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    if mailinfo.get("content_type") == "text":
+        part = MIMEText(mailinfo.get("content"), "plain")
+    else:
+        part = MIMEText(mailinfo.get("content"), "html")
+    message.attach(part)
+    context = ssl.create_default_context()
+    try:
+        animation = "|/-\\"
+        idx = 0
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(
+                sender_email, receiver_email, message.as_string()
+            )
+            log(" \n \t \t \t MAIL SENT SUCCEFULLY !!! \n ", "green")
+    except:
+         log("\n \t \t \t Failed to send mail, Please try again.. \n  ", "red")
+
+def askEmailInformation():
+       
+    questions = [
+        {
+            'type': 'input',
+            'name': 'from_email',
+            'message': 'Sender email',
+            'default': 'xyz@gmail.com',
+            'validate': EmailValidator
+        },
+        {
+            'type': 'input',
+            'name': 'to_email',
+            'message': 'Reciever email',
+            'default':'abc@gmail.com',
+            'validate': EmailValidator
+        },
+        {
+            'type': 'input',
+            'name': 'subject',
+            'message': 'Subject',
+            'validate': EmptyValidator
+        },
+        {
+            'type': 'list',
+            'name': 'content_type',
+            'message': 'Content Type:',
+            'choices': ['Text', 'HTML'],
+            'filter': lambda val: val.lower()
+        },
+        {
+            'type': 'input',
+            'name': 'content',
+            'message': 'Enter plain text:',
+            'when': lambda answers: getContentType(answers, "text"),
+            'validate': EmptyValidator
+        },
+        {
+            'type': 'confirm',
+            'name': 'confirm_content',
+            'message': 'Do you want to send an html file',
+            'when': lambda answers: getContentType(answers, "html")
+
+        },
+        {
+            'type': 'input',
+            'name': 'content',
+            'message': 'Enter html:',
+            'when': lambda answers: not answers.get("confirm_content", True),
+            'validate': EmptyValidator
+        },
+        {
+            'type': 'input',
+            'name': 'content',
+            'message': 'Enter html path:',
+            'validate': FilePathValidator,
+            'filter': lambda val: open(val).read(),
+            'when': lambda answers: answers.get("confirm_content", False)
+        },
+        {
+            'type': 'confirm',
+            'name': 'send',
+            'message': 'Do you want to send now'
+        }
+    ]
+
+    answers = prompt(questions, style=style)
+    return answers
+
+@click.command()
+
+def main():
+    log(" \t \t C L I  MAILER", color="blue", figlet=True)
+    mailinfo = askEmailInformation()
+    sendMail(mailinfo)
+        
+if __name__ == '__main__':
+    main()

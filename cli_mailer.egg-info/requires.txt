@@ -2,15 +2,12 @@ click==7.1.2
 colorama==0.4.3
 constantly==15.1.0
 contextlib2==0.6.0.post1
-distlib==0.3.0
-fire==0.3.1
-Flask==0.12.2
 prompt-toolkit==1.0.14
 pyfiglet==0.8.post1
 pylint==2.5.3
 python-http-client==3.2.7
 regex==2020.7.14
-requests==2.18.4
+requests==2.20
 sendgrid==6.4.5
 urllib3==1.22
 virtualenv-clone==0.5.4

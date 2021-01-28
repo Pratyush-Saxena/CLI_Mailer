@@ -1,0 +1,8 @@
+README.md
+cli_mailer
+setup.py
+cli_mailer.egg-info/PKG-INFO
+cli_mailer.egg-info/SOURCES.txt
+cli_mailer.egg-info/dependency_links.txt
+cli_mailer.egg-info/requires.txt
+cli_mailer.egg-info/top_level.txt
