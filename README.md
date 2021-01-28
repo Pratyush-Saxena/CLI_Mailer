@@ -1,4 +1,4 @@
-# CLI_Mailer
+# ![CLI_Mailer](https://pypi.org/project/cli-mailer/)
 This is a python program that let u send mail in command line interface.
 ### USAGE 
 1. Clone the repository 
