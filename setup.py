@@ -5,8 +5,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='cli_mailer',  
-    version='0.1',
-    scripts=['cli_mailer'] ,
+    version='0.1.1',
+    scripts=['cli_mailer'],
     author="Pratyush Saxena",
     author_email="saxena18prats@gmail.com",    description="A command Line mailer",
     long_description=long_description,
