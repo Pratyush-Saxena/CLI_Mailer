@@ -1,15 +1,12 @@
 # CLI_Mailer
-This is a python program that let u send mail in command line interface.
+This is a python package that let's you send mail over command line interface.
 ### USAGE 
-1. Clone the repository 
+1. Install the Package
 ```bash
-https://github.com/Pratyush-Saxena/CLI_Mailer.git
+pip install cli-mailer
 ```
-2. Install all the dependencies
+2. Now run the file
 ```bash
-pip install requirements.txt
+cli-mailer
 ```
-3. Now run main.py script
-```bash
-python main.py
-```
+
