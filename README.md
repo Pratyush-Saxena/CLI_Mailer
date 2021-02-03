@@ -7,6 +7,6 @@ pip install cli-mailer
 ```
 2. Now run the script (from anywhere)
 ```bash
-cli-mailer
+cli_mailer
 ```
 
